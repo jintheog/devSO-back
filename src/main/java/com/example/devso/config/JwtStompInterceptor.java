@@ -1,7 +1,7 @@
 package com.example.devso.config;
 
-import com.example.devso.Security.CustomUserDetailsService;
-import com.example.devso.Security.JwtProvider;
+import com.example.devso.security.CustomUserDetailsService;
+import com.example.devso.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
