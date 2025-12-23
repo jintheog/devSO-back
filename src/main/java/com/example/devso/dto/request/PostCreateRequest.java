@@ -13,7 +13,7 @@ public class PostCreateRequest {
     private String title;
 
     @NotBlank(message = "내용은 필수 입니다.")
-    @Size(max = 100000, message = "내용은 100000자 까지")
+    @Size(max = 2000000, message = "내용은 2000000자 까지")
     private String content;
 
     private String imageUrl;
