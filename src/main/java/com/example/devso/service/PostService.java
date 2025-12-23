@@ -34,6 +34,7 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Post post = Post.builder()
+                .title(request.getTitle())
                 .content(request.getContent())
                 .imageUrl(request.getImageUrl())
                 .user(user)

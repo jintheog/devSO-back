@@ -17,7 +17,11 @@ public class Post extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 2000)
+    @Column(nullable = false, length = 255)
+    private String title;
+
+    @Lob
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     private String imageUrl;
@@ -33,7 +37,8 @@ public class Post extends BaseEntity{
     private List<PostLike> likes = new ArrayList<>();
 
     @Builder
-    public Post(String content, String imageUrl, User user) {
+    public Post(String title, String content, String imageUrl, User user) {
+        this.title = title;
         this.content = content;
         this.imageUrl = imageUrl;
         this.user = user;

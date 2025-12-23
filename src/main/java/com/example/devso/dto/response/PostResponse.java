@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class PostResponse {
 
     private Long id;
+    private String title;
     private String content;
     private String imageUrl;
     private LocalDateTime createdAt;
@@ -24,6 +25,7 @@ public class PostResponse {
     public static PostResponse from(Post post) {
         return PostResponse.builder()
                 .id(post.getId())
+                .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
                 .author(UserResponse.from(post.getUser()))
@@ -37,6 +39,7 @@ public class PostResponse {
     public static PostResponse from(Post post, boolean liked, long likeCount, long commentCount) {
         return PostResponse.builder()
                 .id(post.getId())
+                .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
                 .author(UserResponse.from(post.getUser()))
