@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -44,11 +46,13 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PostResponse>>> findAll(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+    public ResponseEntity<ApiResponse<Page<PostResponse>>> findAll(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ){
         Long userId = userDetails != null ? userDetails.getId() : null;
-        List<PostResponse> posts = postService.findAll(userId);
+        Page<PostResponse> posts = postService.findAll(userId, PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.success(posts));
     }
 

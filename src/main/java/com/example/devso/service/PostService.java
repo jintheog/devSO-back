@@ -11,6 +11,8 @@ import com.example.devso.repository.PostLikeRepository;
 import com.example.devso.repository.PostRepository;
 import com.example.devso.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,11 +48,9 @@ public class PostService {
     }
 
     // 전체 게시물
-    public List<PostResponse> findAll(Long currentUserId) {
-        List<Post> posts = postRepository.findAllWithUser();
-        return posts.stream()
-                .map(post -> toPostResponseWithStats(post,currentUserId ))
-                .toList();
+    public Page<PostResponse> findAll(Long currentUserId, Pageable pageable) {
+        Page<Post> posts = postRepository.findAllWithUser(pageable);
+        return posts.map(post -> toPostResponseWithStats(post, currentUserId));
     }
 
     // 단일 게시물
