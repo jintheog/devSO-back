@@ -1,6 +1,7 @@
 package com.example.devso.service;
 
 import com.example.devso.dto.request.PostCreateRequest;
+import com.example.devso.dto.request.PostUpdateRequest;
 import com.example.devso.dto.response.PostResponse;
 import com.example.devso.entity.Post;
 import com.example.devso.entity.User;
@@ -72,6 +73,25 @@ public class PostService {
                 .map(post -> toPostResponseWithStats(post, currentUserId))
                 .toList();
     }
+
+    @Transactional
+    public PostResponse update(Long postId, Long userId, PostUpdateRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if(!post.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.NOT_POST_OWNER);
+        }
+
+        // 제목, 내용, 이미지 URL 업데이트
+        post.updateTitle(request.getTitle());
+        post.updateContent(request.getContent());
+        post.updateImageUrl(request.getImageUrl());
+
+        Post updated = postRepository.save(post);
+        return toPostResponseWithStats(updated, userId);
+    }
+
 
     @Transactional
     public void delete(Long postId, Long userId) {

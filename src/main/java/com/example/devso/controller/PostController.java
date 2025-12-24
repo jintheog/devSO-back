@@ -2,6 +2,7 @@ package com.example.devso.controller;
 
 import com.example.devso.dto.request.CommentCreateRequest;
 import com.example.devso.dto.request.PostCreateRequest;
+import com.example.devso.dto.request.PostUpdateRequest;
 import com.example.devso.dto.response.ApiResponse;
 import com.example.devso.dto.response.CommentResponse;
 import com.example.devso.dto.response.LikeResponse;
@@ -60,6 +61,16 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostResponse>> findById(@PathVariable Long id,
                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
         PostResponse response = postService.findById(id, userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PostResponse>> update(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody PostUpdateRequest request
+    ) {
+        PostResponse response = postService.update(id, userDetails.getId(), request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
