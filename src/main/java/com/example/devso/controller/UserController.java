@@ -3,11 +3,9 @@ package com.example.devso.controller;
 import com.example.devso.dto.request.ProfileUpdateRequest;
 import com.example.devso.security.CustomUserDetails;
 import com.example.devso.dto.request.PasswordChangeRequest;
-import com.example.devso.dto.request.UserUpdateRequest;
 import com.example.devso.dto.response.ApiResponse;
 import com.example.devso.dto.response.UserProfileResponse;
 import com.example.devso.dto.response.UserResponse;
-import com.example.devso.service.ProfileService;
 import com.example.devso.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +26,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final ProfileService profileService;
 
 
     private boolean isAdmin(CustomUserDetails userDetails) {
