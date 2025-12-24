@@ -1,6 +1,6 @@
 package com.example.devso.controller;
 
-import com.example.devso.Security.CustomUserDetails;
+import com.example.devso.security.CustomUserDetails;
 import com.example.devso.dto.request.RecruitRequest;
 import com.example.devso.dto.response.ApiResponse;
 import com.example.devso.dto.response.EnumResponse;
