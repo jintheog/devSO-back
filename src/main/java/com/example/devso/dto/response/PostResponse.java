@@ -15,6 +15,7 @@ public class PostResponse {
     private String title;
     private String content;
     private String imageUrl;
+    private long viewCount;
     private LocalDateTime createdAt;
     private UserResponse author;
 
@@ -28,6 +29,7 @@ public class PostResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
+                .viewCount(post.getViewCount())
                 .author(UserResponse.from(post.getUser()))
                 .createdAt(post.getCreatedAt())
                 .liked(false)
@@ -42,6 +44,7 @@ public class PostResponse {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .imageUrl(post.getImageUrl())
+                .viewCount(post.getViewCount())
                 .author(UserResponse.from(post.getUser()))
                 .createdAt(post.getCreatedAt())
                 .liked(liked)

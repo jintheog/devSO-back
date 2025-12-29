@@ -26,6 +26,9 @@ public class Post extends BaseEntity{
 
     private String imageUrl;
 
+    @Column(nullable = false)
+    private long viewCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -54,5 +57,9 @@ public class Post extends BaseEntity{
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }
