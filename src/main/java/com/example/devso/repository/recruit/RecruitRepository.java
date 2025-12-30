@@ -29,7 +29,7 @@ public interface RecruitRepository extends JpaRepository<Recruit, Long> {
         WHERE (:type IS NULL OR r.type = :type)
           AND (:search IS NULL OR :search = '' OR r.title LIKE %:search%)
           AND (:stacks IS NULL OR s IN :stacks)
-          AND (:position IS NULL OR p = :position)
+          AND (:position IS NULL OR :position MEMBER OF r.positions)
           AND (:progressType IS NULL OR r.progressType = :progressType)
           AND (:onlyOpen = false OR r.deadLine >= CURRENT_DATE)
         ORDER BY r.createdAt DESC
