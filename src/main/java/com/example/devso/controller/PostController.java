@@ -232,5 +232,16 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    @GetMapping("/user/{username}")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> findByUsername(
+            @PathVariable String username,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long currentUserId = userDetails != null ? userDetails.getId() : null;
+        List<PostResponse> response = postService.findByUsername(username, currentUserId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+
 
 }
