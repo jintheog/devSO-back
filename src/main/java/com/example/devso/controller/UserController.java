@@ -1,6 +1,7 @@
 package com.example.devso.controller;
 
 import com.example.devso.dto.request.ProfileUpdateRequest;
+import com.example.devso.dto.response.FollowResponse;
 import com.example.devso.dto.response.UserResponse;
 import com.example.devso.security.CustomUserDetails;
 import com.example.devso.dto.request.PasswordChangeRequest;
@@ -64,18 +65,16 @@ public class UserController {
     }
 
 
-    /**
-     * 프로필 조회 (username 기준)
-     * GET /api/users/{username}
-     */
-    @Operation(summary = "프로필 검색")
+    @Operation(summary = "프로필 조회")
     @GetMapping("/{username}")
-    public ResponseEntity<UserProfileResponse> getProfile(@PathVariable String username) {
-        // ID가 아닌 username으로 조회하는 서비스 로직 호출
-        UserProfileResponse response = userService.getUserProfileByUsername(username);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
+            @PathVariable String username,
+            @AuthenticationPrincipal CustomUserDetails userDetails // ✅ 현재 로그인 정보 가져오기
+    ) {
+        Long currentUserId = (userDetails != null) ? userDetails.getId() : null;
+        UserProfileResponse response = userService.getUserProfileByUsername(username, currentUserId);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
-
     /**
      * 프로필 업데이트 (username 기준)
      * PUT /api/users/{username}
@@ -101,6 +100,26 @@ public class UserController {
         return ResponseEntity.ok("프로필이 성공적으로 수정되었습니다.");
     }
 
+    @PostMapping("/{username}/follow")
+    public ResponseEntity<ApiResponse<FollowResponse>> follow(
+            @PathVariable String username,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        FollowResponse response = followService.follow(username,  userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @DeleteMapping("/{username}/follow")
+    public ResponseEntity<ApiResponse<FollowResponse>> unfollow(
+            @PathVariable String username,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        FollowResponse response = followService.unfollow(username, userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+
+
     // TODO: 팔로워 목록 조회 API 추가
     // GET /api/users/{username}/followers
     @GetMapping("/{username}/followers")
@@ -121,44 +140,6 @@ public class UserController {
         List<UserResponse> response = followService.getFollowings(username);
         return  ResponseEntity.ok(ApiResponse.success(response));
     }
-
-    /**
-     * 팔로우 실행
-     * POST /api/users/{username}/follow
-     */
-    @Operation(summary = "사용자 팔로우")
-    @PostMapping("/{username}/follow") // 👈 api.js의 follow 함수와 매핑됨
-    public ResponseEntity<ApiResponse<com.example.devso.dto.response.FollowResponse>> follow(
-            @PathVariable String username,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        // 현재 로그인한 유저의 ID를 followerId로 전달
-        var response = followService.follow(username, userDetails.getId());
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
-    /**
-     * 팔로우 취소
-     * DELETE /api/users/{username}/follow
-     */
-    @Operation(summary = "사용자 언팔로우")
-    @DeleteMapping("/{username}/follow") // 👈 api.js의 unfollow 함수와 매핑됨
-    public ResponseEntity<ApiResponse<com.example.devso.dto.response.FollowResponse>> unfollow(
-            @PathVariable String username,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        var response = followService.unfollow(username, userDetails.getId());
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
 
 
 }

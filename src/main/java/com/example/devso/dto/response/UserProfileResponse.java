@@ -1,6 +1,7 @@
 package com.example.devso.dto.response;
 
 import com.example.devso.entity.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,11 @@ public class UserProfileResponse {
     private String profileImageUrl;
     private String portfolio;
     private Role role;
+    private long followerCount;
+    private long followingCount;
+
+    @JsonProperty("isFollowing")
+    private boolean isFollowing;
 
     // 하위 리스트 DTO
     private List<CareerDto> careers;
@@ -32,7 +38,7 @@ public class UserProfileResponse {
     private List<ActivityDto> activities;
     private List<SkillDto> skills; // 1. SkillDto 리스트 필드 추가
 
-    public static UserProfileResponse from(User user) {
+    public static UserProfileResponse from(User user, long followerCount, long followingCount, boolean isFollowing) {
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -50,6 +56,9 @@ public class UserProfileResponse {
                 // 2. Skill 엔티티 리스트를 DTO로 변환하여 매핑
                 .skills(user.getSkills() != null ?
                         user.getSkills().stream().map(SkillDto::from).collect(Collectors.toList()) : null)
+                .followerCount(followerCount)
+                .followingCount(followingCount)
+                .isFollowing(isFollowing)
                 .build();
     }
 

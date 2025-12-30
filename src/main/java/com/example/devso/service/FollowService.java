@@ -21,6 +21,9 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 팔로우/팔로잉 카운트를 조회하여 FollowResponse로 반환합니다.
+     */
     private FollowResponse getFollowCounts(Long userId, boolean isFollowing){
         long followerCount = followRepository.countByFollowingId(userId);
         long followingCount = followRepository.countByFollowerId(userId);
@@ -28,6 +31,9 @@ public class FollowService {
         return FollowResponse.of(isFollowing, followerCount, followingCount);
     }
 
+    /**
+     * 사용자를 팔로우합니다.
+     */
     @Transactional
     public FollowResponse follow(String username, Long followerId) {
         User following = userRepository.findByUsername(username)
@@ -52,28 +58,34 @@ public class FollowService {
                 .build();
 
         followRepository.save(follow);
+        followRepository.flush(); // 즉시 DB 반영하여 카운트 정합성 확보
 
         return getFollowCounts(following.getId(), true);
-
     }
 
+    /**
+     * 사용자를 언팔로우합니다.
+     */
     @Transactional
     public FollowResponse unfollow(String username, Long followerId) {
-        // 대상 조회
+        // 대상 유저 조회
         User following = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        // 팔로우 관계 존재 확인
         Follow follow = followRepository
                 .findByFollowerIdAndFollowingId(followerId, following.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOLLOWING));
 
         followRepository.delete(follow);
+        followRepository.flush(); // 삭제 내용을 즉시 반영해야 getFollowCounts에서 정확한 숫자가 나옵니다.
 
         return getFollowCounts(following.getId(), false);
     }
 
-
-    // 팔로워 목록
+    /**
+     * 특정 사용자의 팔로워 목록을 조회합니다.
+     */
     public List<UserResponse> getFollowers(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -83,7 +95,9 @@ public class FollowService {
                 .toList();
     }
 
-    // 팔로잉 목록
+    /**
+     * 특정 사용자가 팔로잉하는 목록을 조회합니다.
+     */
     public List<UserResponse> getFollowings(String username) {
         User user  = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -92,11 +106,4 @@ public class FollowService {
                 .map(follow -> UserResponse.from(follow.getFollowing()))
                 .toList();
     }
-
-
-
-
-
-
 }
-
