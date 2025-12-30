@@ -122,6 +122,43 @@ public class UserController {
         return  ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    /**
+     * 팔로우 실행
+     * POST /api/users/{username}/follow
+     */
+    @Operation(summary = "사용자 팔로우")
+    @PostMapping("/{username}/follow") // 👈 api.js의 follow 함수와 매핑됨
+    public ResponseEntity<ApiResponse<com.example.devso.dto.response.FollowResponse>> follow(
+            @PathVariable String username,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // 현재 로그인한 유저의 ID를 followerId로 전달
+        var response = followService.follow(username, userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 팔로우 취소
+     * DELETE /api/users/{username}/follow
+     */
+    @Operation(summary = "사용자 언팔로우")
+    @DeleteMapping("/{username}/follow") // 👈 api.js의 unfollow 함수와 매핑됨
+    public ResponseEntity<ApiResponse<com.example.devso.dto.response.FollowResponse>> unfollow(
+            @PathVariable String username,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        var response = followService.unfollow(username, userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
 
 
 }

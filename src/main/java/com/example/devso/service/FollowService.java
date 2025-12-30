@@ -28,6 +28,7 @@ public class FollowService {
         return FollowResponse.of(isFollowing, followerCount, followingCount);
     }
 
+    @Transactional
     public FollowResponse follow(String username, Long followerId) {
         User following = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
