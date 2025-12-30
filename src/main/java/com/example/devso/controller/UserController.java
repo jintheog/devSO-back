@@ -1,12 +1,11 @@
 package com.example.devso.controller;
 
 import com.example.devso.dto.request.ProfileUpdateRequest;
-import com.example.devso.repository.FollowRepository;
+import com.example.devso.dto.response.UserResponse;
 import com.example.devso.security.CustomUserDetails;
 import com.example.devso.dto.request.PasswordChangeRequest;
 import com.example.devso.dto.response.ApiResponse;
 import com.example.devso.dto.response.UserProfileResponse;
-import com.example.devso.dto.response.UserResponse;
 import com.example.devso.service.FollowService;
 import com.example.devso.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
