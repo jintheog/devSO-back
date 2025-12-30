@@ -11,6 +11,7 @@ public class UserResponse {
     private Long id;
     private String username;
     private String name;
+    private String profileImageUrl;
 
 
     public static UserResponse from(User user) {
@@ -18,6 +19,7 @@ public class UserResponse {
                 .id(user.getId())
                 .username(user.getUsername())
                 .name(user.getName())
+                .profileImageUrl(user.getProfileImageUrl())
                 .build();
     }
 }
