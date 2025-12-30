@@ -6,6 +6,7 @@ import com.example.devso.dto.request.UserUpdateRequest;
 import com.example.devso.dto.response.UserProfileResponse;
 import com.example.devso.dto.response.UserResponse;
 import com.example.devso.entity.*;
+import com.example.devso.repository.FollowRepository;
 import com.example.devso.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +25,29 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FollowRepository followRepository; // 주입 확인
 
-
-    public UserProfileResponse getUserProfileByUsername(String username) {
-        User user = userRepository.findByUsername(username)
+    /**
+     * 프로필 조회 (팔로우 카운트 및 팔로우 여부 포함)
+     */
+    public UserProfileResponse getUserProfileByUsername(String targetUsername, Long currentUserId) {
+        User targetUser = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 엔티티를 DTO로 변환하여 반환
-        return UserProfileResponse.from(user);
+        // 1. 카운트 조회
+        long followerCount = followRepository.countByFollowingId(targetUser.getId());
+        long followingCount = followRepository.countByFollowerId(targetUser.getId());
+
+        // 2. 팔로우 여부 확인 (로그인 유저가 있을 때만 체크)
+        boolean isFollowing = false;
+        if (currentUserId != null) {
+            isFollowing = followRepository.existsByFollowerIdAndFollowingId(currentUserId, targetUser.getId());
+        }
+
+        // 3. 4개의 인자를 모두 전달 (컴파일 에러 해결)
+        return UserProfileResponse.from(targetUser, followerCount, followingCount, isFollowing);
     }
+
     /**
      * 프로필 및 이력 정보 통합 수정
      */
@@ -41,7 +56,6 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 1. 기본 프로필 정보 업데이트
         user.updateProfile(
                 request.getName(),
                 request.getBio(),
@@ -51,8 +65,6 @@ public class UserService {
                 request.getEmail()
         );
 
-        // 2. 경력 사항 업데이트 (List)
-        // orphanRemoval = true 설정 덕분에 clear() 후 addAll() 하면 삭제/수정이 자동으로 일어납니다.
         if (request.getCareers() != null) {
             List<Career> newCareers = request.getCareers().stream()
                     .map(dto -> dto.toEntity(user))
@@ -60,12 +72,11 @@ public class UserService {
             user.updateCareers(newCareers);
         }
 
-        // 3. 학력 사항 업데이트
         if (request.getEducations() != null) {
             List<Education> newEducations = request.getEducations().stream()
                     .map(dto -> dto.toEntity(user))
                     .toList();
-            user.updateEducations(newEducations); // User 엔티티에 메서드 추가 필요
+            user.updateEducations(newEducations);
         }
 
         if (request.getActivities() != null) {
@@ -90,7 +101,6 @@ public class UserService {
         }
     }
 
-
     @Transactional
     public UserProfileResponse updateProfile(String username, Long currentUserId, UserUpdateRequest request) {
         User user = userRepository.findByUsername(username)
@@ -109,9 +119,12 @@ public class UserService {
                 request.getEmail()
         );
 
-        return UserProfileResponse.from(user);
-    }
+        long followerCount = followRepository.countByFollowingId(user.getId());
+        long followingCount = followRepository.countByFollowerId(user.getId());
 
+        // 업데이트 시에는 자기 자신 프로필이므로 isFollowing은 보통 false
+        return UserProfileResponse.from(user, followerCount, followingCount, false);
+    }
 
     @Transactional
     public void changePassword(String username, PasswordChangeRequest request) {
