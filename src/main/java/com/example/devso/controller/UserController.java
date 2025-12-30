@@ -1,11 +1,13 @@
 package com.example.devso.controller;
 
 import com.example.devso.dto.request.ProfileUpdateRequest;
+import com.example.devso.repository.FollowRepository;
 import com.example.devso.security.CustomUserDetails;
 import com.example.devso.dto.request.PasswordChangeRequest;
 import com.example.devso.dto.response.ApiResponse;
 import com.example.devso.dto.response.UserProfileResponse;
 import com.example.devso.dto.response.UserResponse;
+import com.example.devso.service.FollowService;
 import com.example.devso.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +28,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final FollowService followService;
 
 
     private boolean isAdmin(CustomUserDetails userDetails) {
@@ -97,6 +100,27 @@ public class UserController {
 
         userService.updateFullProfileByUsername(username, request);
         return ResponseEntity.ok("프로필이 성공적으로 수정되었습니다.");
+    }
+
+    // TODO: 팔로워 목록 조회 API 추가
+    // GET /api/users/{username}/followers
+    @GetMapping("/{username}/followers")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getFollowers(
+            @PathVariable String username
+    ) {
+        List<UserResponse> response = followService.getFollowers(username);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+
+    // TODO: 팔로잉 목록 조회 API 추가
+    // GET /api/users/{username}/following
+    @GetMapping("/{username}/following")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getFollowings(
+            @PathVariable String username
+    )  {
+        List<UserResponse> response = followService.getFollowings(username);
+        return  ResponseEntity.ok(ApiResponse.success(response));
     }
 
 
