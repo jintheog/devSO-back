@@ -31,6 +31,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final CommentMentionRepository commentMentionRepository;
 
+    //update + insert
     private void upsertMentions(Comment comment, List<Long> mentionedUserIds, boolean replaceIfProvided) {
         if (mentionedUserIds == null) {
             // update 요청에서 null이면 기존 유지
