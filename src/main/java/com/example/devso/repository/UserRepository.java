@@ -34,5 +34,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LEFT JOIN FETCH u.skills " +
             "WHERE u.username = :username AND u.deletedAt IS NULL")
     Optional<User> findUserWithDetailsByUsername(@Param("username") String username);
+
+    boolean existsByEmail(String email);
 }
 

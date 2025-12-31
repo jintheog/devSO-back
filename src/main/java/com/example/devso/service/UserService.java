@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects; // ✅ NullPointerException 방지를 위해 추가
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final FollowRepository followRepository; // 주입 확인
+    private final FollowRepository followRepository;
 
     /**
      * 프로필 조회 (팔로우 카운트 및 팔로우 여부 포함)
@@ -34,17 +34,14 @@ public class UserService {
         User targetUser = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 1. 카운트 조회
         long followerCount = followRepository.countByFollowingId(targetUser.getId());
         long followingCount = followRepository.countByFollowerId(targetUser.getId());
 
-        // 2. 팔로우 여부 확인 (로그인 유저가 있을 때만 체크)
         boolean isFollowing = false;
         if (currentUserId != null) {
             isFollowing = followRepository.existsByFollowerIdAndFollowingId(currentUserId, targetUser.getId());
         }
 
-        // 3. 4개의 인자를 모두 전달 (컴파일 에러 해결)
         return UserProfileResponse.from(targetUser, followerCount, followingCount, isFollowing);
     }
 
@@ -56,6 +53,13 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
+        // ✅ [수정] Objects.equals를 사용하여 user.getEmail()이 null이어도 NPE가 발생하지 않도록 함
+        if (request.getEmail() != null && !Objects.equals(user.getEmail(), request.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new IllegalStateException("이미 사용 중인 이메일입니다: " + request.getEmail());
+            }
+        }
+
         user.updateProfile(
                 request.getName(),
                 request.getBio(),
@@ -65,6 +69,7 @@ public class UserService {
                 request.getEmail()
         );
 
+        // 하위 리스트 업데이트 로직
         if (request.getCareers() != null) {
             List<Career> newCareers = request.getCareers().stream()
                     .map(dto -> dto.toEntity(user))
@@ -101,13 +106,23 @@ public class UserService {
         }
     }
 
+    /**
+     * 기본 프로필 정보 수정
+     */
     @Transactional
     public UserProfileResponse updateProfile(String username, Long currentUserId, UserUpdateRequest request) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
         if (!user.getId().equals(currentUserId)) {
             throw new IllegalArgumentException("사용자가 아닙니다.");
+        }
+
+        // ✅ [수정] 여기도 동일하게 Objects.equals 적용
+        if (request.getEmail() != null && !Objects.equals(user.getEmail(), request.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new IllegalStateException("이미 사용 중인 이메일입니다: " + request.getEmail());
+            }
         }
 
         user.updateProfile(
@@ -122,14 +137,13 @@ public class UserService {
         long followerCount = followRepository.countByFollowingId(user.getId());
         long followingCount = followRepository.countByFollowerId(user.getId());
 
-        // 업데이트 시에는 자기 자신 프로필이므로 isFollowing은 보통 false
         return UserProfileResponse.from(user, followerCount, followingCount, false);
     }
 
     @Transactional
     public void changePassword(String username, PasswordChangeRequest request) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
@@ -149,5 +163,14 @@ public class UserService {
         return users.stream()
                 .map(UserResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 이메일 중복 여부 확인
+     * @param email 체크할 이메일
+     * @return 존재하면 true, 없으면 false
+     */
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

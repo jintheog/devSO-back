@@ -3,6 +3,7 @@ package com.example.devso.controller;
 import com.example.devso.dto.request.ProfileUpdateRequest;
 import com.example.devso.dto.response.FollowResponse;
 import com.example.devso.dto.response.UserResponse;
+import com.example.devso.repository.UserRepository;
 import com.example.devso.security.CustomUserDetails;
 import com.example.devso.dto.request.PasswordChangeRequest;
 import com.example.devso.dto.response.ApiResponse;
@@ -20,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "User", description = "사용자 API")
 @RestController
@@ -31,6 +35,7 @@ public class UserController {
     private final UserService userService;
     private final FollowService followService;
     private final GeminiService geminiService;
+    private final UserRepository userRepository;
 
 
     private boolean isAdmin(CustomUserDetails userDetails) {
@@ -163,6 +168,15 @@ public class UserController {
     }
 
 
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+        boolean isAvailable = !userService.existsByEmail(email);
 
+        // 구조를 단순화해서 보냅니다.
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("available", isAvailable);
 
+        // 반환값: { "available": true } 또는 { "available": false }
+        return ResponseEntity.ok(response);
+    }
 }

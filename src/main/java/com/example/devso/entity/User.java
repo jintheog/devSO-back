@@ -36,7 +36,7 @@ public class User extends BaseEntity{
     @Column(length = 500)
     private String bio;
 
-    @Column(nullable = false, unique = true)
+
     private String email;
 
     private String profileImageUrl;

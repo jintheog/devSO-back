@@ -1,11 +1,15 @@
 package com.example.devso.exception;
 
 import com.example.devso.dto.response.ApiResponse;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Collections;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -35,4 +39,17 @@ public class GlobalExceptionHandler {
                 .internalServerError()
                 .body(ApiResponse.error("INTERNAL_ERROR", e.getMessage()));
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalStateException(IllegalStateException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Collections.singletonMap("message", e.getMessage()));
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?> handleEntityNotFound(EntityNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Collections.singletonMap("message", e.getMessage()));
+    }
+
 }

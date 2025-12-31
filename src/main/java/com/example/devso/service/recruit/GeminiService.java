@@ -191,58 +191,72 @@ public class GeminiService {
     }
 
     private String buildResumePrompt(User user) {
-        // 1. 경력 정보 가공
-        String careerText = user.getCareers().isEmpty() ? "경력 없음" :
+        // 1. 경력 정보 가공 (리스트가 null이거나 비었는지 체크)
+        String careerText = (user.getCareers() == null || user.getCareers().isEmpty())
+                ? "경력 없음" :
                 user.getCareers().stream()
+                        .filter(c -> c.getCompanyName() != null)
                         .map(c -> String.format("- %s (%s)", c.getCompanyName(), c.getPosition()))
                         .collect(Collectors.joining("\n"));
 
         // 2. 기술 스택 가공
-        String skillText = user.getSkills().isEmpty() ? "보유 스택 없음" :
+        String skillText = (user.getSkills() == null || user.getSkills().isEmpty())
+                ? "보유 스택 없음" :
                 user.getSkills().stream()
+                        .filter(s -> s.getName() != null)
                         .map(Skill::getName)
                         .collect(Collectors.joining(", "));
 
-        // 3. 학력 정보 가공 (추가)
-        String educationText = user.getEducations().isEmpty() ? "학력 정보 없음" :
+        // 3. 학력 정보 가공
+        String educationText = (user.getEducations() == null || user.getEducations().isEmpty())
+                ? "학력 정보 없음" :
                 user.getEducations().stream()
+                        .filter(e -> e.getSchoolName() != null)
                         .map(e -> String.format("- %s (%s)", e.getSchoolName(), e.getMajor()))
                         .collect(Collectors.joining("\n"));
 
-        // 4. 프로젝트 및 대외활동 가공 (추가)
-        String activityText = user.getActivities().isEmpty() ? "활동 내역 없음" :
+        // 4. 프로젝트 및 대외활동 가공
+        String activityText = (user.getActivities() == null || user.getActivities().isEmpty())
+                ? "활동 내역 없음" :
                 user.getActivities().stream()
+                        .filter(a -> a.getProjectName() != null)
                         .map(a -> String.format("- %s: %s (%s)", a.getCategory(), a.getProjectName(), a.getContent()))
                         .collect(Collectors.joining("\n"));
 
-        // 5. 자격증 정보 가공 (추가)
-        String certiText = user.getCertis().isEmpty() ? "자격증 없음" :
+        // 5. 자격증 정보 가공
+        String certiText = (user.getCertis() == null || user.getCertis().isEmpty())
+                ? "자격증 없음" :
                 user.getCertis().stream()
+                        .filter(c -> c.getCertiName() != null)
                         .map(Certi::getCertiName)
                         .collect(Collectors.joining(", "));
 
+        // 6. 기본 소개글 처리
+        String bioText = (user.getBio() == null || user.getBio().isBlank()) ? "미작성" : user.getBio();
+
         return String.format("""
-        당신은 IT 전문 커리어 컨설턴트입니다. 다음 지원자의 상세 정보를 바탕으로 이력서용 '자기소개'를 작성해주세요.
-
-        [지원자 상세 정보]
-        - 이름: %s
-        - 학력: %s
-        - 주요 기술: %s
-        - 경력 사항:
-        %s
-        - 프로젝트 및 활동:
-        %s
-        - 자격증: %s
-        - 기존 요약: %s
-
-        [작성 가이드라인]
-        1. **강력한 헤드라인**: 지원자의 정체성을 보여주는 한 줄 슬로건을 첫 줄에 작성하세요.
-        2. **역량 중심 본문**: 학력, 프로젝트 활동, 보유 기술이 유기적으로 연결되도록 작성하세요. 
-        3. **실무 강점**: 경력이나 프로젝트에서 얻은 구체적인 강점을 언급해주세요.
-        4. **형식**: 띄어쓰기 포함 400~500자 , 신뢰감을 주는 전문적인 말투(~합니다)를 사용하세요.
-        5. **주의**: 마크다운 기호(###, **)는 사용하지 말고 순수 텍스트로만 구성하세요.
-        """,
-                user.getName(), educationText, skillText, careerText, activityText, certiText, user.getBio()
+                        당신은 IT 전문 커리어 컨설턴트입니다. 다음 지원자의 정보를 바탕으로 이력서용 '자기소개'를 작성해주세요.
+                        
+                        [지원자 정보]
+                        - 이름: %s
+                        - 학력: %s
+                        - 기술 스택: %s
+                        - 경력 사항:
+                        %s
+                        - 프로젝트 및 활동:
+                        %s
+                        - 자격증: %s
+                        - 기존 소개: %s
+                        
+                        [가이드라인]
+                        1. 첫 줄은 지원자를 정의하는 강력한 슬로건으로 시작할 것.
+                        2. 제공된 학력, 스택, 활동을 조화롭게 연결하여 하나의 완성된 글로 만들 것.
+                        3. 실무 강점과 협업 능력을 강조할 것.
+                        4. 분량: 공백 포함 400~500자 사이.
+                        5. 말투: '~합니다'의 정중한 어조.
+                        6. 금지: 마크다운 기호(###, **) 사용 금지. 순수 텍스트만 출력.
+                        """,
+                user.getName(), educationText, skillText, careerText, activityText, certiText, bioText
         );
     }
 
