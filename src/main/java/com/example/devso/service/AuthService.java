@@ -8,6 +8,8 @@ import com.example.devso.dto.response.TokenResponse;
 import com.example.devso.dto.response.UserResponse;
 import com.example.devso.entity.AuthProvider;
 import com.example.devso.entity.User;
+import com.example.devso.exception.CustomException;
+import com.example.devso.exception.ErrorCode;
 import com.example.devso.repository.UserRepository;
 import com.example.devso.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class AuthService {
     public UserResponse signup(SignupRequest request) {
         // return boolean => long
         if (userRepository.existsByUsername(request.getUsername()) == 1) {
-            throw new IllegalArgumentException();
+            throw new CustomException(ErrorCode.DUPLICATE_USERNAME);
         }
 
 
