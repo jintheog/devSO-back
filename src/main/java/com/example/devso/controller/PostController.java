@@ -59,10 +59,11 @@ public class PostController {
     public ResponseEntity<ApiResponse<Page<PostResponse>>> findAll(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String q
     ){
         Long userId = userDetails != null ? userDetails.getId() : null;
-        Page<PostResponse> posts = postService.findAll(userId, PageRequest.of(page, size));
+        Page<PostResponse> posts = postService.findAll(userId, PageRequest.of(page, size), q);
         return ResponseEntity.ok(ApiResponse.success(posts));
     }
 

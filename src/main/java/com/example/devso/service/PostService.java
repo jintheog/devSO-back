@@ -60,6 +60,15 @@ public class PostService {
         return posts.map(post -> toPostResponseWithStats(post, currentUserId));
     }
 
+    // 전체 게시물 검색(제목/내용/작성자)
+    public Page<PostResponse> findAll(Long currentUserId, Pageable pageable, String q) {
+        if (q == null || q.isBlank()) {
+            return findAll(currentUserId, pageable);
+        }
+        Page<Post> posts = postRepository.searchAll(q.trim(), pageable);
+        return posts.map(post -> toPostResponseWithStats(post, currentUserId));
+    }
+
     // 피드(내 팔로잉 + 내 글)
     public Page<PostResponse> findFeed(Long currentUserId, Pageable pageable) {
         if (currentUserId == null) {
@@ -70,6 +79,22 @@ public class PostService {
         if (!userIds.contains(currentUserId)) userIds.add(currentUserId);
 
         Page<Post> posts = postRepository.findByUserIdsPage(userIds, pageable);
+        return posts.map(post -> toPostResponseWithStats(post, currentUserId));
+    }
+
+    // 피드 검색(제목/내용/작성자)
+    public Page<PostResponse> findFeed(Long currentUserId, Pageable pageable, String q) {
+        if (q == null || q.isBlank()) {
+            return findFeed(currentUserId, pageable);
+        }
+        if (currentUserId == null) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+
+        List<Long> userIds = followRepository.findFollowingIdsByFollowerId(currentUserId);
+        if (!userIds.contains(currentUserId)) userIds.add(currentUserId);
+
+        Page<Post> posts = postRepository.searchFeed(userIds, q.trim(), pageable);
         return posts.map(post -> toPostResponseWithStats(post, currentUserId));
     }
 

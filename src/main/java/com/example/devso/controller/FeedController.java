@@ -24,9 +24,10 @@ public class FeedController {
     public ResponseEntity<ApiResponse<Page<PostResponse>>> feed(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String q
     ) {
-        Page<PostResponse> response = postService.findFeed(userDetails.getId(), PageRequest.of(page, size));
+        Page<PostResponse> response = postService.findFeed(userDetails.getId(), PageRequest.of(page, size), q);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
