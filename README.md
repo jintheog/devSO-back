@@ -87,8 +87,6 @@ CREATE DATABASE devso DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     - `KAKAO_CLIENT_ID`: (카카오에서 발급받은 REST API 키)
     - `KAKAO_CLIENT_SECRET`: (카카오 설정 > 보안 메뉴에서 생성한 Secret 코드)
     - `GEMINI_API_KEY`: (Google AI Studio에서 발급받은 API 키)
-    - `DB_USERNAME`: (본인의 데이터베이스 사용자 이름)
-    - `DB_PASSWORD`: (본인의 데이터베이스 비밀번호)
 
 ### 4) 애플리케이션 실행
 
@@ -112,17 +110,6 @@ npm run dev
 
 - 기본 포트: `5173`
 - 기본 홈: `http://localhost:5173/`
-
-## 환경 변수
-### Frontend (`devSO-front`)
-- `VITE_API_URL` (기본값: `http://localhost:8080`)
-- `VITE_KAKAO_CLIENT_ID`
-- `VITE_KAKAO_REDIRECT_URI` (예: `http://localhost:5173/oauth/kakao/callback`)
-
-### Backend (`devSO-back`)
-- `KAKAO_CLIENT_ID`
-- `KAKAO_CLIENT_SECRET`
-- `GEMINI_API_KEY`
 
 > DB 설정은 `devSO-back/src/main/resources/application.properties`의 `spring.datasource.*`를 사용합니다.
 
