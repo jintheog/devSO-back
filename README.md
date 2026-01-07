@@ -58,22 +58,60 @@
 - (추가 예정)
 
 ## 프로젝트 실행 방법
-### 1) Backend 실행
-```bash
+
+### 1) Database Setup
+
+MySQL 접속 후 아래 명령어를 실행하여 데이터베이스를 생성합니다.
+
+```SQL
+CREATE DATABASE devso DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 2) API Key 발급 사이트
+
+본 프로젝트는 외부 API 연동이 필수적이므로, 아래 사이트에서 각 키를 발급받아야 합니다.
+
+- **Kakao OAuth**: [카카오 개발자 센터](https://developers.kakao.com/)
+    - 내 애플리케이션 > 앱 설정 > 플랫폼 및 카카오 로그인 설정 필요
+- **Google Gemini API**: [Google AI Studio](https://aistudio.google.com/)
+    - Get API key 메뉴를 통해 API Key 생성
+
+### 3) IntelliJ 환경 변수 설정 (중요)
+
+보안을 위해 API Key와 DB 정보 등 민감한 정보는 `application.properties`에 직접 노출하지 않고, IntelliJ 사용자 환경 변수를 통해 주입받습니다.
+
+1. IntelliJ 상단 메뉴에서 **[Run]** -> **[Edit Configurations...]**를 클릭합니다.
+2. 왼쪽 리스트의 **Spring Boot** 항목에서 `DevSoApplication`을 선택합니다.
+3. **Environment variables** 입력란 우측의 아이콘(문서 모양)을 클릭합니다.
+4. 나타나는 창에서 아래 **변수명(Name)**과 **값(Value)**을 각각 입력합니다.
+    - `KAKAO_CLIENT_ID`: (카카오에서 발급받은 REST API 키)
+    - `KAKAO_CLIENT_SECRET`: (카카오 설정 > 보안 메뉴에서 생성한 Secret 코드)
+    - `GEMINI_API_KEY`: (Google AI Studio에서 발급받은 API 키)
+    - `DB_USERNAME`: (본인의 데이터베이스 사용자 이름)
+    - `DB_PASSWORD`: (본인의 데이터베이스 비밀번호)
+
+### 4) 애플리케이션 실행
+
+### **Backend 실행**
+
+```
 cd devSO-back
 ./gradlew bootRun
 ```
+
 - 기본 포트: `8080`
 - Swagger: `http://localhost:8080/swagger-ui.html`
 
-### 2) Frontend 실행
-```bash
+### **Frontend 실행**
+
+```
 cd devSO-front
 npm install
 npm run dev
 ```
+
 - 기본 포트: `5173`
-- 기본 홈: `http://localhost:5173/` → 대시보드
+- 기본 홈: `http://localhost:5173/`
 
 ## 환경 변수
 ### Frontend (`devSO-front`)
