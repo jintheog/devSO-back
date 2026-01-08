@@ -32,7 +32,7 @@ public interface RecruitRepository extends JpaRepository<Recruit, Long> {
                 :search IS NULL OR :search = ''
                 OR r.title LIKE %:search%
                 OR r.content LIKE %:search%
-                OR r.user.username LIKE %:search%
+                OR r.user.name LIKE %:search%
               )
           AND (:stacks IS NULL OR EXISTS (SELECT 1 FROM r.stacks s WHERE s IN :stacks))
           AND (:position IS NULL OR :position MEMBER OF r.positions)
@@ -49,7 +49,7 @@ public interface RecruitRepository extends JpaRepository<Recruit, Long> {
                 :search IS NULL OR :search = ''
                 OR r.title LIKE %:search%
                 OR r.content LIKE %:search%
-                OR r.user.username LIKE %:search%
+                OR r.user.name LIKE %:search%
               )
           AND (:progressType IS NULL OR r.progressType = :progressType)
           AND (:onlyOpen = false OR r.deadLine >= CURRENT_DATE)
